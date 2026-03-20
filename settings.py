@@ -52,6 +52,11 @@ MOUSE_SENSITIVITY = 0.002
 
 # colors
 BG_COLOR = glm.vec3(0.58, 0.83, 0.99)
+BG_COLOR_DESERT = glm.vec3(0.90, 0.80, 0.55)
+
+# terrain types
+TERRAIN_GRASSLAND = 0
+TERRAIN_DESERT = 1
 
 # textures
 SAND = 1

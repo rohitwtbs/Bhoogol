@@ -4,16 +4,26 @@ from settings import *
 
 
 @njit
-def get_height(x, z):
-    # island mask
+def get_height(x, z, terrain_type):
+    # island mask (shared by all terrain types)
     island = 1 / (pow(0.0025 * math.hypot(x - CENTER_XZ, z - CENTER_XZ), 20) + 0.0001)
     island = min(island, 1)
 
-    # amplitude
+    if terrain_type == 1:  # DESERT — flat sandy dunes
+        a1 = CENTER_Y * 0.28
+        f1 = 0.009
+        f2 = f1 * 3
+        height = 0.0
+        height += noise2(x * f1, z * f1) * a1 + a1 * 0.35
+        height += noise2(x * f2, z * f2) * a1 * 0.15
+        height = max(height, 3.0)
+        height *= island
+        return int(height)
+
+    # GRASSLAND (default)
     a1 = CENTER_Y
     a2, a4, a8 = a1 * 0.5, a1 * 0.25, a1 * 0.125
 
-    # frequency
     f1 = 0.005
     f2, f4, f8 = f1 * 2, f1 * 4, f1 * 8
 
@@ -26,7 +36,7 @@ def get_height(x, z):
     height += noise2(x * f4, z * f4) * a4 + a4
     height += noise2(x * f8, z * f8) * a8 - a8
 
-    height = max(height,  noise2(x * f8, z * f8) + 2)
+    height = max(height, noise2(x * f8, z * f8) + 2)
     height *= island
 
     return int(height)
@@ -38,9 +48,22 @@ def get_index(x, y, z):
 
 
 @njit
-def set_voxel_id(voxels, x, y, z, wx, wy, wz, world_height):
+def set_voxel_id(voxels, x, y, z, wx, wy, wz, world_height, terrain_type):
     voxel_id = 0
 
+    if terrain_type == 1:  # DESERT
+        if wy < world_height - 1:
+            # deep sand layer on top, stone below
+            if wy >= world_height - 5:
+                voxel_id = SAND
+            else:
+                voxel_id = STONE
+        else:
+            voxel_id = SAND
+        voxels[get_index(x, y, z)] = voxel_id
+        return
+
+    # GRASSLAND (original logic)
     if wy < world_height - 1:
         # create caves
         if (noise3(wx * 0.09, wy * 0.09, wz * 0.09) > 0 and

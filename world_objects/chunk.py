@@ -36,7 +36,7 @@ class Chunk:
         voxels = np.zeros(CHUNK_VOL, dtype='uint8')
 
         cx, cy, cz = glm.ivec3(self.position) * CHUNK_SIZE
-        self.generate_terrain(voxels, cx, cy, cz)
+        self.generate_terrain(voxels, cx, cy, cz, self.app.terrain_type)
 
         if np.any(voxels):
             self.is_empty = False
@@ -44,14 +44,14 @@ class Chunk:
 
     @staticmethod
     @njit
-    def generate_terrain(voxels, cx, cy, cz):
+    def generate_terrain(voxels, cx, cy, cz, terrain_type):
         for x in range(CHUNK_SIZE):
             wx = x + cx
             for z in range(CHUNK_SIZE):
                 wz = z + cz
-                world_height = get_height(wx, wz)
+                world_height = get_height(wx, wz, terrain_type)
                 local_height = min(world_height - cy, CHUNK_SIZE)
 
                 for y in range(local_height):
                     wy = y + cy
-                    set_voxel_id(voxels, x, y, z, wx, wy, wz, world_height)
+                    set_voxel_id(voxels, x, y, z, wx, wy, wz, world_height, terrain_type)
