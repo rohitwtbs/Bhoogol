@@ -10,7 +10,7 @@ from textures import Textures
 
 def show_terrain_menu():
     pg.init()
-    W, H = 660, 420
+    W, H = 900, 440
     screen = pg.display.set_mode((W, H))
     pg.display.set_caption('Bhoogol — Choose Terrain')
     pg.mouse.set_visible(True)
@@ -18,14 +18,29 @@ def show_terrain_menu():
 
     font_title = pg.font.SysFont('Arial', 48, bold=True)
     font_sub   = pg.font.SysFont('Arial', 20)
-    font_btn   = pg.font.SysFont('Arial', 28, bold=True)
-    font_desc  = pg.font.SysFont('Arial', 17)
+    font_btn   = pg.font.SysFont('Arial', 26, bold=True)
+    font_desc  = pg.font.SysFont('Arial', 16)
 
-    grass_btn  = pg.Rect(60,  195, 240, 70)
-    desert_btn = pg.Rect(360, 195, 240, 70)
+    # 3 buttons side by side, 230 wide, 15px gaps, centred in 900px window
+    BW, BH = 230, 70
+    grass_btn  = pg.Rect(90,  200, BW, BH)
+    forest_btn = pg.Rect(335, 200, BW, BH)
+    desert_btn = pg.Rect(580, 200, BW, BH)
 
-    grass_desc  = ['Rolling hills & forests,', 'snow peaks, caves & rivers']
-    desert_desc = ['Vast sandy dunes,', 'deep stone depths']
+    options = [
+        (grass_btn,  TERRAIN_GRASSLAND, 'Grassland',
+         (50, 135, 55), (38, 100, 42), (110, 215, 110),
+         (240, 255, 240), (175, 215, 175),
+         ['Rolling hills & forests,', 'snow peaks & caves']),
+        (forest_btn, TERRAIN_FOREST,    'Dense Forest',
+         (30, 100, 40), (20,  70, 28), (80,  200, 100),
+         (210, 255, 210), (140, 210, 150),
+         ['Thick canopy & dense trees,', 'hilly misty terrain']),
+        (desert_btn, TERRAIN_DESERT,    'Desert',
+         (195, 160, 65), (155, 120, 45), (235, 195, 90),
+         (255, 248, 220), (215, 200, 155),
+         ['Vast sandy dunes,', 'deep stone depths']),
+    ]
 
     clock = pg.time.Clock()
     choice = None
@@ -39,43 +54,26 @@ def show_terrain_menu():
                 pg.quit()
                 sys.exit()
             if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                if grass_btn.collidepoint(mx, my):
-                    choice = TERRAIN_GRASSLAND
-                elif desert_btn.collidepoint(mx, my):
-                    choice = TERRAIN_DESERT
+                for btn, terrain_id, *_ in options:
+                    if btn.collidepoint(mx, my):
+                        choice = terrain_id
 
         screen.fill((18, 20, 32))
 
-        # subtle divider
-        pg.draw.line(screen, (45, 50, 75), (W // 2, 155), (W // 2, 370), 1)
-
-        # title
         title = font_title.render('Bhoogol', True, (210, 215, 255))
-        screen.blit(title, title.get_rect(center=(W // 2, 62)))
+        screen.blit(title, title.get_rect(center=(W // 2, 65)))
         sub = font_sub.render('Select a terrain type to explore', True, (140, 150, 185))
-        screen.blit(sub, sub.get_rect(center=(W // 2, 115)))
+        screen.blit(sub, sub.get_rect(center=(W // 2, 120)))
 
-        # buttons
-        g_hover = grass_btn.collidepoint(mx, my)
-        d_hover = desert_btn.collidepoint(mx, my)
-        pg.draw.rect(screen, (50, 135, 55) if g_hover else (38, 100, 42),  grass_btn,  border_radius=12)
-        pg.draw.rect(screen, (195, 160, 65) if d_hover else (155, 120, 45), desert_btn, border_radius=12)
-        pg.draw.rect(screen, (110, 215, 110), grass_btn,  2, border_radius=12)
-        pg.draw.rect(screen, (235, 195, 90),  desert_btn, 2, border_radius=12)
-
-        gl = font_btn.render('Grassland', True, (240, 255, 240))
-        dl = font_btn.render('Desert',    True, (255, 248, 220))
-        screen.blit(gl, gl.get_rect(center=grass_btn.center))
-        screen.blit(dl, dl.get_rect(center=desert_btn.center))
-
-        # descriptions
-        for btn, lines, col in [
-            (grass_btn,  grass_desc,  (175, 215, 175)),
-            (desert_btn, desert_desc, (215, 200, 155)),
-        ]:
-            for j, line in enumerate(lines):
-                t = font_desc.render(line, True, col)
-                screen.blit(t, t.get_rect(center=(btn.centerx, btn.bottom + 24 + j * 22)))
+        for btn, _, label, col_hover, col_norm, col_border, col_text, col_desc, desc_lines in options:
+            hover = btn.collidepoint(mx, my)
+            pg.draw.rect(screen, col_hover if hover else col_norm, btn, border_radius=12)
+            pg.draw.rect(screen, col_border, btn, 2, border_radius=12)
+            lbl = font_btn.render(label, True, col_text)
+            screen.blit(lbl, lbl.get_rect(center=btn.center))
+            for j, line in enumerate(desc_lines):
+                t = font_desc.render(line, True, col_desc)
+                screen.blit(t, t.get_rect(center=(btn.centerx, btn.bottom + 22 + j * 20)))
 
         pg.display.flip()
         clock.tick(60)
@@ -86,7 +84,12 @@ def show_terrain_menu():
 class VoxelEngine:
     def __init__(self, terrain_type=TERRAIN_GRASSLAND):
         self.terrain_type = terrain_type
-        self.bg_color = BG_COLOR if terrain_type == TERRAIN_GRASSLAND else BG_COLOR_DESERT
+        if terrain_type == TERRAIN_DESERT:
+            self.bg_color = BG_COLOR_DESERT
+        elif terrain_type == TERRAIN_FOREST:
+            self.bg_color = BG_COLOR_FOREST
+        else:
+            self.bg_color = BG_COLOR
 
         pg.init()
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, MAJOR_VER)
