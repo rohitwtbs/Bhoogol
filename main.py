@@ -127,7 +127,7 @@ class VoxelEngine:
 
         self.delta_time = self.clock.tick()
         self.time = pg.time.get_ticks() * 0.001
-        pg.display.set_caption(f'{self.clock.get_fps() :.0f}')
+        # caption is set by Scene.update() with full combat status
 
     def render(self):
         self.ctx.clear(color=self.bg_color)
