@@ -4,4 +4,5 @@ numba==0.59.0
 PyGLM==2.7.1
 numpy<2.0,>=1.22
 opensimplex[numpy]==0.4.4
+nbt==1.5.1
 
