@@ -1,4 +1,4 @@
-# Minecraft
+# Bhoogol
 Voxel Engine (like Minecraft) in Python and OpenGL 
 
 Control: WASDQE + mouse
