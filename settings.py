@@ -52,13 +52,20 @@ MOUSE_SENSITIVITY = 0.002
 
 # colors
 BG_COLOR = glm.vec3(0.58, 0.83, 0.99)
-BG_COLOR_DESERT = glm.vec3(0.90, 0.80, 0.55)
-BG_COLOR_FOREST = glm.vec3(0.42, 0.68, 0.48)
+BG_COLOR_DESERT    = glm.vec3(0.90, 0.80, 0.55)
+BG_COLOR_FOREST    = glm.vec3(0.42, 0.68, 0.48)
+BG_COLOR_CYBERPUNK = glm.vec3(0.02, 0.01, 0.08)  # deep-space purple night
+
+# cyberpunk city grid
+CYBER_BLOCK_PERIOD = 18   # repeat distance of one city block in voxels
+CYBER_ROAD_WIDTH   = 3    # road margin on each side
+CYBER_GROUND_LVL   = 4   # flat road / plaza height
 
 # terrain types
 TERRAIN_GRASSLAND = 0
-TERRAIN_DESERT = 1
-TERRAIN_FOREST = 2
+TERRAIN_DESERT    = 1
+TERRAIN_FOREST    = 2
+TERRAIN_CYBERPUNK = 3
 
 # textures
 SAND = 1

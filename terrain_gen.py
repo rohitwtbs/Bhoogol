@@ -33,6 +33,19 @@ def get_height(x, z, terrain_type):
         height *= island
         return int(height)
 
+    if terrain_type == 3:  # CYBERPUNK — neon city grid
+        gx = int(x) % CYBER_BLOCK_PERIOD
+        gz = int(z) % CYBER_BLOCK_PERIOD
+        if CYBER_ROAD_WIDTH <= gx < CYBER_BLOCK_PERIOD - CYBER_ROAD_WIDTH and \
+                CYBER_ROAD_WIDTH <= gz < CYBER_BLOCK_PERIOD - CYBER_ROAD_WIDTH:
+            bx = (x // CYBER_BLOCK_PERIOD) * CYBER_BLOCK_PERIOD + CYBER_BLOCK_PERIOD // 2
+            bz = (z // CYBER_BLOCK_PERIOD) * CYBER_BLOCK_PERIOD + CYBER_BLOCK_PERIOD // 2
+            h = int((abs(noise2(bx * 0.07, bz * 0.07)) * 50 + 12) * island)
+            if h < CYBER_GROUND_LVL:
+                h = CYBER_GROUND_LVL
+            return h
+        return CYBER_GROUND_LVL
+
     a1 = CENTER_Y
     a2, a4, a8 = a1 * 0.5, a1 * 0.25, a1 * 0.125
 
@@ -89,6 +102,34 @@ def set_voxel_id(voxels, x, y, z, wx, wy, wz, world_height, terrain_type):
         voxels[get_index(x, y, z)] = voxel_id
         if wy < DIRT_LVL:
             place_forest_tree(voxels, x, y, z, voxel_id)
+        return
+
+    if terrain_type == 3:  # CYBERPUNK — varied dark towers with neon accents
+        # Derive a stable "colour zone" from the block's grid cell
+        bx_idx = int(wx) // CYBER_BLOCK_PERIOD
+        bz_idx = int(wz) // CYBER_BLOCK_PERIOD
+        zone   = (bx_idx * 3 + bz_idx * 7) % 6
+
+        # Six dark base palettes cycling over voxel IDs:
+        # 0 → STONE  (dark grey)       3 → DIRT   (dark brown)
+        # 1 → WOOD   (dark charcoal)   4 → STONE  (same grey, accent varies)
+        # 2 → SAND   (dark olive)      5 → WOOD   (dark panel)
+        base_ids = (STONE, WOOD, SAND, DIRT, STONE, WOOD)
+        base_id  = base_ids[zone]
+
+        if wy >= world_height - 1:
+            # Rooftop glow — neon edge strip, colour varies by zone
+            roof_ids = (SNOW, LEAVES, SAND, GRASS, SNOW, LEAVES)
+            voxel_id = roof_ids[zone]
+        elif wy >= world_height - 3 and noise3(wx * 0.4, wy * 0.4, wz * 0.4) > 0.3:
+            # Upper window band — bright accent
+            accent_ids = (GRASS, SNOW, LEAVES, SAND, LEAVES, GRASS)
+            voxel_id = accent_ids[zone]
+        elif noise3(wx * 0.25, wy * 0.25, wz * 0.25) > 0.55:
+            voxel_id = WOOD    # dark panel stripe
+        else:
+            voxel_id = base_id
+        voxels[get_index(x, y, z)] = voxel_id
         return
 
     if wy < world_height - 1:

@@ -7,10 +7,11 @@ class ShaderProgram:
         self.ctx = app.ctx
         self.player = app.player
         # -------- shaders -------- #
-        self.chunk = self.get_program(shader_name='chunk')
+        self.chunk        = self.get_program(shader_name='chunk')
         self.voxel_marker = self.get_program(shader_name='voxel_marker')
-        self.water = self.get_program('water')
-        self.clouds = self.get_program('clouds')
+        self.water        = self.get_program('water')
+        self.clouds       = self.get_program('clouds')
+        self.player_entity = self.get_program('player_entity')
         # ------------------------- #
         self.set_uniforms_on_init()
 
@@ -39,11 +40,18 @@ class ShaderProgram:
         self.clouds['bg_color'].write(self.app.bg_color)
         self.clouds['cloud_scale'] = CLOUD_SCALE
 
+        # coloured voxel entities (drones, hyperloops, fighters)
+        self.player_entity['m_proj'].write(self.player.m_proj)
+        self.player_entity['m_model'].write(glm.mat4())
+        self.player_entity['bg_color'].write(self.app.bg_color)
+        self.player_entity['water_line'] = WATER_LINE
+
     def update(self):
         self.chunk['m_view'].write(self.player.m_view)
         self.voxel_marker['m_view'].write(self.player.m_view)
         self.water['m_view'].write(self.player.m_view)
         self.clouds['m_view'].write(self.player.m_view)
+        self.player_entity['m_view'].write(self.player.m_view)
 
     def get_program(self, shader_name):
         with open(f'shaders/{shader_name}.vert') as file:

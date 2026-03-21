@@ -10,7 +10,7 @@ from textures import Textures
 
 def show_terrain_menu():
     pg.init()
-    W, H = 900, 440
+    W, H = 1100, 460
     screen = pg.display.set_mode((W, H))
     pg.display.set_caption('Bhoogol — Choose Terrain')
     pg.mouse.set_visible(True)
@@ -18,28 +18,35 @@ def show_terrain_menu():
 
     font_title = pg.font.SysFont('Arial', 48, bold=True)
     font_sub   = pg.font.SysFont('Arial', 20)
-    font_btn   = pg.font.SysFont('Arial', 26, bold=True)
-    font_desc  = pg.font.SysFont('Arial', 16)
+    font_btn   = pg.font.SysFont('Arial', 24, bold=True)
+    font_desc  = pg.font.SysFont('Arial', 15)
 
-    # 3 buttons side by side, 230 wide, 15px gaps, centred in 900px window
-    BW, BH = 230, 70
-    grass_btn  = pg.Rect(90,  200, BW, BH)
-    forest_btn = pg.Rect(335, 200, BW, BH)
-    desert_btn = pg.Rect(580, 200, BW, BH)
+    # 4 buttons, evenly spaced
+    BW, BH = 210, 70
+    GAP    = 18
+    START  = (W - 4 * BW - 3 * GAP) // 2
+    grass_btn  = pg.Rect(START,                 210, BW, BH)
+    forest_btn = pg.Rect(START +  (BW + GAP),   210, BW, BH)
+    desert_btn = pg.Rect(START + 2*(BW + GAP),  210, BW, BH)
+    cyber_btn  = pg.Rect(START + 3*(BW + GAP),  210, BW, BH)
 
     options = [
         (grass_btn,  TERRAIN_GRASSLAND, 'Grassland',
-         (50, 135, 55), (38, 100, 42), (110, 215, 110),
+         (50, 135, 55),   (38, 100, 42),  (110, 215, 110),
          (240, 255, 240), (175, 215, 175),
          ['Rolling hills & forests,', 'snow peaks & caves']),
         (forest_btn, TERRAIN_FOREST,    'Dense Forest',
-         (30, 100, 40), (20,  70, 28), (80,  200, 100),
+         (30, 100, 40),   (20,  70, 28),  (80,  200, 100),
          (210, 255, 210), (140, 210, 150),
          ['Thick canopy & dense trees,', 'hilly misty terrain']),
         (desert_btn, TERRAIN_DESERT,    'Desert',
-         (195, 160, 65), (155, 120, 45), (235, 195, 90),
+         (195, 160, 65),  (155, 120, 45), (235, 195, 90),
          (255, 248, 220), (215, 200, 155),
          ['Vast sandy dunes,', 'deep stone depths']),
+        (cyber_btn,  TERRAIN_CYBERPUNK, 'Cyberpunk',
+         (60,  10, 120),  (35,   5,  80), (180,  40, 255),
+         (220, 180, 255), (160, 100, 220),
+         ['Neon city grid, drones,', 'RGB hyperloops!']),
     ]
 
     clock = pg.time.Clock()
@@ -58,12 +65,12 @@ def show_terrain_menu():
                     if btn.collidepoint(mx, my):
                         choice = terrain_id
 
-        screen.fill((18, 20, 32))
+        screen.fill((10, 8, 22))
 
         title = font_title.render('Bhoogol', True, (210, 215, 255))
         screen.blit(title, title.get_rect(center=(W // 2, 65)))
         sub = font_sub.render('Select a terrain type to explore', True, (140, 150, 185))
-        screen.blit(sub, sub.get_rect(center=(W // 2, 120)))
+        screen.blit(sub, sub.get_rect(center=(W // 2, 130)))
 
         for btn, _, label, col_hover, col_norm, col_border, col_text, col_desc, desc_lines in options:
             hover = btn.collidepoint(mx, my)
@@ -73,7 +80,7 @@ def show_terrain_menu():
             screen.blit(lbl, lbl.get_rect(center=btn.center))
             for j, line in enumerate(desc_lines):
                 t = font_desc.render(line, True, col_desc)
-                screen.blit(t, t.get_rect(center=(btn.centerx, btn.bottom + 22 + j * 20)))
+                screen.blit(t, t.get_rect(center=(btn.centerx, btn.bottom + 22 + j * 18)))
 
         pg.display.flip()
         clock.tick(60)
@@ -88,6 +95,8 @@ class VoxelEngine:
             self.bg_color = BG_COLOR_DESERT
         elif terrain_type == TERRAIN_FOREST:
             self.bg_color = BG_COLOR_FOREST
+        elif terrain_type == TERRAIN_CYBERPUNK:
+            self.bg_color = BG_COLOR_CYBERPUNK
         else:
             self.bg_color = BG_COLOR
 
