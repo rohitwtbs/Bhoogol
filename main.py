@@ -117,11 +117,23 @@ class VoxelEngine:
         self.delta_time = 0
         self.time = 0
 
-        pg.event.set_grab(True)
-        pg.mouse.set_visible(False)
+        self.mouse_captured = True
+        self.capture_mouse()
 
         self.is_running = True
         self.on_init()
+
+    def capture_mouse(self):
+        pg.event.set_grab(True)
+        pg.mouse.set_visible(False)
+        pg.mouse.get_rel()
+        self.mouse_captured = True
+
+    def release_mouse(self):
+        pg.event.set_grab(False)
+        pg.mouse.set_visible(True)
+        pg.mouse.get_rel()
+        self.mouse_captured = False
 
     def on_init(self):
         self.textures = Textures(self)
@@ -136,7 +148,11 @@ class VoxelEngine:
 
         self.delta_time = self.clock.tick()
         self.time = pg.time.get_ticks() * 0.001
-        pg.display.set_caption(f'{self.clock.get_fps() :.0f}')
+        fps_text = f'{self.clock.get_fps() :.0f}'
+        if self.mouse_captured:
+            pg.display.set_caption(fps_text)
+        else:
+            pg.display.set_caption(f'{fps_text} | Cursor Free - Left Click to Resume')
 
     def render(self):
         self.ctx.clear(color=self.bg_color)
@@ -145,8 +161,22 @@ class VoxelEngine:
 
     def handle_events(self):
         for event in pg.event.get():
-            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+            if event.type == pg.QUIT:
                 self.is_running = False
+                continue
+
+            if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                if self.mouse_captured:
+                    self.release_mouse()
+                continue
+
+            if not self.mouse_captured and event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                self.capture_mouse()
+                continue
+
+            if not self.mouse_captured:
+                continue
+
             self.player.handle_event(event=event)
 
     def run(self):

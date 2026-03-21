@@ -9,6 +9,9 @@ class Player(Camera):
         super().__init__(position, yaw, pitch)
 
     def update(self):
+        if not self.app.mouse_captured:
+            pg.mouse.get_rel()
+            return
         self.keyboard_control()
         self.mouse_control()
         super().update()
