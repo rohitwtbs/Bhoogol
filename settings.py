@@ -2,6 +2,7 @@ from numba import njit
 import numpy as np
 import glm
 import math
+import sys
 
 # OpenGL settings
 if sys.platform == 'darwin':
