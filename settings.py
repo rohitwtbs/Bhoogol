@@ -4,9 +4,12 @@ import glm
 import math
 
 # OpenGL settings
-MAJOR_VER, MINOR_VER = 3, 3
+if sys.platform == 'darwin':
+    MAJOR_VER, MINOR_VER = 4, 1  # macOS max supported
+else:
+    MAJOR_VER, MINOR_VER = 3, 3
 DEPTH_SIZE = 24
-NUM_SAMPLES = 1  # antialiasing
+NUM_SAMPLES = 0  # disable multisampling (causes Bus error on macOS)
 
 # resolution
 WIN_RES = glm.vec2(1600, 900)
