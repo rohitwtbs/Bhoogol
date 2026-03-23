@@ -1,4 +1,12 @@
 from settings import *
+import sys
+
+
+def _patch_shader_for_webgl(source):
+    """Convert #version 330 core shaders to #version 300 es for WebGL 2."""
+    if sys.platform == 'emscripten':
+        source = source.replace('#version 330 core', '#version 300 es\nprecision highp float;\nprecision highp int;\nprecision highp sampler2DArray;', 1)
+    return source
 
 
 class ShaderProgram:
@@ -55,10 +63,10 @@ class ShaderProgram:
 
     def get_program(self, shader_name):
         with open(f'shaders/{shader_name}.vert') as file:
-            vertex_shader = file.read()
+            vertex_shader = _patch_shader_for_webgl(file.read())
 
         with open(f'shaders/{shader_name}.frag') as file:
-            fragment_shader = file.read()
+            fragment_shader = _patch_shader_for_webgl(file.read())
 
         program = self.ctx.program(vertex_shader=vertex_shader, fragment_shader=fragment_shader)
         return program

@@ -1,6 +1,9 @@
-from settings import SEED
-from numba import njit
-from opensimplex.internals import _noise2, _noise3, _init
+from settings import SEED, njit
+
+try:
+    from opensimplex.internals import _noise2, _noise3, _init
+except ImportError:
+    from opensimplex_shim import _noise2, _noise3, _init
 
 perm, perm_grad_index3 = _init(seed=SEED)
 

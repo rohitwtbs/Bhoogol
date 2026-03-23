@@ -1,0 +1,9 @@
+.git
+__pycache__
+*.pyc
+build/
+screenshot/
+*.egg-info
+.venv
+venv
+node_modules

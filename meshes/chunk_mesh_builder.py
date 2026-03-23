@@ -1,5 +1,10 @@
 from settings import *
-from numba import uint8
+
+try:
+    from numba import uint8
+except ImportError:
+    import numpy as np
+    uint8 = np.uint8
 
 
 @njit

@@ -1,6 +1,7 @@
 from noise import noise2, noise3
 from random import random
 from settings import *
+# njit is imported via settings (stub when numba is unavailable)
 
 
 @njit

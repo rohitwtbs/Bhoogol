@@ -1,7 +1,21 @@
-from numba import njit
 import numpy as np
-import glm
 import math
+import sys
+
+try:
+    from numba import njit
+except ImportError:
+    def njit(func=None, cache=False):
+        if func is not None:
+            return func
+        def decorator(f):
+            return f
+        return decorator
+
+try:
+    import glm
+except ImportError:
+    from glm_shim import glm
 
 # OpenGL settings
 MAJOR_VER, MINOR_VER = 3, 3
