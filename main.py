@@ -85,7 +85,10 @@ def show_terrain_menu():
         pg.display.flip()
         clock.tick(60)
 
-    pg.quit()
+    # Don't call pg.quit() here — reinitializing pygame on macOS
+    # corrupts the CGL context and causes Bus error: 10.
+    # Just close the display; VoxelEngine will reconfigure it.
+    pg.display.quit()
     return choice
 
 class VoxelEngine:
@@ -100,7 +103,9 @@ class VoxelEngine:
         else:
             self.bg_color = BG_COLOR
 
-        pg.init()
+        if not pg.get_init():
+            pg.init()
+        pg.display.init()
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, MAJOR_VER)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, MINOR_VER)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE)
